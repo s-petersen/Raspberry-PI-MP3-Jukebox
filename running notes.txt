@@ -1,0 +1,54 @@
+
+To run the program without a sound card (on a Pi zero)
+you add this line in config.txt
+dtoverlay=pwm-2chan,pin=18,func=2,pin2=13,func2=4
+with the schematic provided
+
+you need the line in config.txt
+dtoverlay=gpio-shutdown,gpio_pin=3
+to make the power button shut the pi down gracefully
+
+mplayer needs to be installed to use this program
+
+The usb drive needs to be mounted on /home/pi/jukebox (make the directory,and use that as a mount point) (you could also change the paths in the programs)
+One problem with using the desktop version is that the usb drive is only mounted at desktop startup, so cron jobs will not see the usb until it's too late.
+
+The Queue.csv needs to exist in the root of the usb drive to run the program, create an empty file if nessesary
+
+The music directories are Red and Blue, their subdirectories are labeled as the consolette (number letter) combinations A1, C3 etc...
+Drop any mp3 music file in one of those directories, and make a title strip to go with it
+
+the following needs to be added to crontab to run headless
+@reboot sudo /home/pi/jukebox/./jukebutns5.py & #button decoder, Queue.csv writer
+@reboot sudo /home/pi/jukebox/./jukeboxply.py & #Queue.csv reader, mp3 player
+@reboot sudo /home/pi/jukebox/./skipsong.py &   #skip songs
+
+add to fstab to prevent sdcard wearout
+
+tmpfs    /tmp            tmpfs    defaults,noatime,nosuid,size=100m    0 0
+tmpfs    /var/tmp        tmpfs    defaults,noatime,nosuid,size=30m    0 0
+tmpfs    /var/log        tmpfs    defaults,noatime,nosuid,mode=0755,size=100m    0 0
+tmpfs    /var/runxx        tmpfs    defaults,noatime,nosuid,mode=0755,size=2m    0 0
+
+disable swapfile
+sudo dphys-swapfile swapoff
+sudo dphys-swapfile uninstall
+sudo update-rc.d dphys-swapfile remove
+sudo apt purge dphys-swapfile
+
+Disable rainbow screen
+
+disable_splash=1 in config.txt
+
+A 4gig sd card works for stretch lite, a 2 gig usb is fine for the music and programs this are running on a Pi Zero
+
+If a static access point is desired the following files need to be modified, the internet connection is lost.
+wpa_supplicant.conf
+dhcpcd.conf
+dnsmasq.conf
+hostapd
+hostapd.conf
+
+
+
+My Jukebox is at 10.10.10.1 and can be logged into from anywhere in my 1st floor.
